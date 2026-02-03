@@ -9,44 +9,37 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://care-house.vercel.app",
-];
-
+// ✅ SIMPLE & SAFE CORS (NO *)
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error("CORS not allowed"));
-  },
-  credentials: true,
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"]
+  origin: "https://care-house.vercel.app",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+// ✅ FIX FOR OPTIONS (NO "*", THIS IS THE KEY)
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Origin", "https://care-house.vercel.app");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json());
 
-// Connect DB
-connectDB().then(() => console.log("DB ready ✅"))
-           .catch(err => console.error("DB failed ❌", err));
+// DB connect
+connectDB();
 
-// Routes
+// routes
 app.use("/api/students", studentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 
-// Test route
-app.get("/", (req, res) => res.send("Hostel Payment Backend Running 🚀"));
-
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Server error"
-  });
+app.get("/", (req, res) => {
+  res.send("Hostel Payment Backend Running 🚀");
 });
 
-module.exports = app; // Vercel-ready
+module.exports = app;
