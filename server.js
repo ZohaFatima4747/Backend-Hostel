@@ -9,58 +9,21 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-// ✅ Allowed origins
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://care-house.vercel.app",
-];
-
-// 🥇 CORS middleware
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
-  credentials: true,
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-// 🚀 Handle preflight
-app.options("*", cors());
-
-// ✅ Body parser
+app.use(cors());
 app.use(express.json());
 
-// 🔴 Connect to DB
-connectDB().then(() => console.log("MongoDB Connected ✅"))
-           .catch(err => console.error("DB connection error:", err));
+// DB connect
+connectDB();
 
-// ✅ Routes
+// routes
 app.use("/api/students", studentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 
-// ✅ Test route
+// test route
 app.get("/", (req, res) => {
   res.send("Hostel Payment Backend Running 🚀");
 });
 
-// 🥉 Global error handler
-app.use((err, req, res, next) => {
-  if (err.message === "CORS not allowed") {
-    return res.status(403).json({ success: false, message: "CORS blocked" });
-  }
-  console.error(err);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Server error"
-  });
-});
-
-module.exports = app; // Vercel-ready
+module.exports = app; // 🔴 VERY IMPORTANT (NO listen)
