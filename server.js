@@ -9,50 +9,39 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-// ✅ Allowed origins
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://care-house.vercel.app",
 ];
 
-// 🥇 Global CORS middleware (works on Vercel)
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error("CORS not allowed"));
   },
   credentials: true,
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type","Authorization"]
 }));
 
-// ✅ Body parser
 app.use(express.json());
 
-// 🔴 Connect to DB
-connectDB().then(() => console.log("MongoDB connected ✅"))
-           .catch(err => console.error("DB connection failed:", err));
+// Connect DB
+connectDB().then(() => console.log("DB ready ✅"))
+           .catch(err => console.error("DB failed ❌", err));
 
-// ✅ Routes
+// Routes
 app.use("/api/students", studentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 
-// ✅ Test route
-app.get("/", (req, res) => {
-  res.send("Hostel Payment Backend Running 🚀");
-});
+// Test route
+app.get("/", (req, res) => res.send("Hostel Payment Backend Running 🚀"));
 
-// 🥉 Global error handler
+// Global error handler
 app.use((err, req, res, next) => {
-  if (err.message === "CORS not allowed") {
-    return res.status(403).json({ success: false, message: "CORS blocked" });
-  }
   console.error(err);
   res.status(err.status || 500).json({
     success: false,
