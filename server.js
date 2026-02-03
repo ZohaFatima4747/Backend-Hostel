@@ -9,33 +9,21 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-/* =========================
-   ✅ CORS — NO * — VERSEL SAFE
-   ========================= */
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://care-house.vercel.app");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+app.use(cors());
+app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
 
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
-app.use(express.json());
-
-// DB
+// DB connect
 connectDB();
 
-// Routes
+// routes
 app.use("/api/students", studentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 
+// test route
 app.get("/", (req, res) => {
-  res.send("Backend running 🚀");
+  res.send("Hostel Payment Backend Running 🚀");
 });
 
-module.exports = app;
+module.exports = app; // 🔴 VERY IMPORTANT (NO listen)
