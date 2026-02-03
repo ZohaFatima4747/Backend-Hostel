@@ -1,21 +1,14 @@
-const mongoose = require("mongoose");
-
-let isConnected = false; // cache for Vercel serverless
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  if (isConnected) return;
-
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    isConnected = true;
-    console.log(`MongoDB connected: ${conn.connection.host}`);
-  } catch (err) {
-    console.error("MongoDB connection failed:", err);
-    throw err; // ensures Vercel logs the error
-  }
+    try {
+        await mongoose.connect(
+          "mongodb+srv://Connect-form:contactform00o@cluster0.b9afhru.mongodb.net/Hostel"
+        );
+        console.log("MongoDB connected successfully");
+    } catch (error) {
+        console.error("MongoDB connection failed:", error);
+    }
 };
 
 module.exports = connectDB;
