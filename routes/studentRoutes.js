@@ -1,15 +1,17 @@
+// studentRoutes.js
 const express = require("express");
 const router = express.Router();
 const Student = require("../models/Student");
 
+// GET all students (public)
 router.get("/", async (req, res) => {
   try {
-    if (!Student) throw new Error("Student model missing");
+    // Include SecurityFee in the response
     const students = await Student.find({}, "name roomNo SecurityFee");
-    res.json({ success: true, students });
+    res.json(students);
   } catch (err) {
-    console.error("Error fetching students:", err);
-    res.status(500).json({ success: false, message: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
