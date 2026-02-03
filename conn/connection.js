@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-let isConnected = false; // cache for serverless
+let isConnected = false; // cache for Vercel serverless
 
 const connectDB = async () => {
   if (isConnected) return;
@@ -14,7 +14,7 @@ const connectDB = async () => {
     console.log(`MongoDB connected: ${conn.connection.host}`);
   } catch (err) {
     console.error("MongoDB connection failed:", err);
-    throw err; // ensures Vercel logs the real error
+    throw err; // ensures Vercel logs the error
   }
 };
 
